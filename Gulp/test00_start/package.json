@@ -1,0 +1,14 @@
+{
+  "name": "test00_start",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp 1Task"
+  },
+  "author": "songshipeng",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.1"
+  }
+}

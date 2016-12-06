@@ -1,0 +1,28 @@
+// Rem
+// --------------------------------------------------
+
+@baseWidth: 320px;
+@baseFont: 10px;
+
+html {
+  font-size: @baseFont;  //默认当做320px宽度的屏幕来处理
+  font-family: "Microsoft YaHei",Arial,Helvetica,sans-serif;
+}
+
+@bps: 320px, 360px, 375px, 384px, 400px, 411px, 412px, 414px, 435px, 440px, 480px, 520px, 576px, 600px, 640px, 720px, 768px, 800px, 854px, 864px, 1080px;
+
+.loop(@i: 1) when (@i <= length(@bps)) {  //注意less数组是从1开始的
+  @bp: extract(@bps, @i);
+  @font: @bp/@baseWidth*@baseFont;
+  @media only screen and (min-width: @bp){
+    html {
+      font-size: @font !important;
+    }
+  }
+  .loop((@i + 1));
+};
+.loop;
+
+body{
+  width: 100%;
+}
