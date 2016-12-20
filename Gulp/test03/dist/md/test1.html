@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>test111111111111</title>
+    <link rel="stylesheet" type="text/css" href="./md.css">
+</head>
+<body>
+    <div class="markdown-body">
+        <h1 id="-">我是你的人 哈哈 啊</h1>
+<blockquote>
+<p>Replace build blocks in HTML. Like useref but done right.</p>
+</blockquote>
+<h3 id="table-of-contents">Table of Contents</h3>
+<ul>
+<li><a href="#usage">Usage</a></li>
+<li><a href="#api">API</a></li>
+<li><a href="#example">Example</a></li>
+<li><a href="#upgrade">Upgrade</a></li>
+</ul>
+<h2 id="-">用法</h2>
+<p>安装:-2</p>
+<pre><code class="lang-shell">npm install --save-dev gulp-html-replace
+</code></pre>
+<p>在HTML文件中放置一些块：</p>
+<pre><code class="lang-html">&lt;!-- build:&lt;name&gt; --&gt;
+Everything here will be replaced
+&lt;!-- endbuild --&gt;
+</code></pre>
+<p><code>name</code> 是块的名称。 可以由字母，数字，下划线（_）和连字符（ - ）符号组成。</p>
+<h2 id="api">API</h2>
+<h3 id="htmlreplace-tasks-options-">htmlreplace(tasks, options)</h3>
+<h4 id="tasks">tasks</h4>
+<p>Type: <code>Object</code> <code>{task-name: replacement}</code></p>
+<ul>
+<li><strong>task-name</strong> - HTML中的块的名称</li>
+<li><strong>replacement</strong> - 可使用String | Array | stream.Readable | Object替换。 请参见下面的例子。</li>
+</ul>
+<h6 id="simple-example-">Simple example: - 简单示例</h6>
+<pre><code class="lang-javascript">// Options is a single string
+htmlreplace({js: &#39;js/main.js&#39;})
+
+// Options is an array of strings
+htmlreplace({js: [&#39;js/monster.js&#39;, &#39;js/hero.js&#39;]})
+</code></pre>
+<blockquote>
+<p>如果你的选项字符串以<code>.js</code>或<code>.css</code>结尾，它们将被正确的脚本/样式标签代替，所以你不需要像下面的例子那样指定模板。</p>
+</blockquote>
+<h6 id="-">高级示例：</h6>
+<pre><code class="lang-javascript">// Options is an object
+htmlreplace({
+  js: {
+    src: &#39;img/avatar.png&#39;,
+    tpl: &#39;&lt;img src=&quot;%s&quot; align=&quot;left&quot; /&gt;&#39;
+  }
+})
+
+// Multiple tag replacement
+htmlreplace({
+  js: {
+    src: [[&#39;data-main.js&#39;, &#39;require-src.js&#39;]],
+    tpl: &#39;&lt;script data-main=&quot;%s&quot; src=&quot;%s&quot;&gt;&lt;/script&gt;&#39;
+  }
+})
+</code></pre>
+<ul>
+<li><strong>src</strong> - <code>String | Array | stream.Readable</code> 与简单示例中的相同。</li>
+<li><strong>tpl</strong> - <code>String</code>格式的模板字符串。 在内部使用<a href="http://nodejs.org/api/util.html#util_util_format_format">util.format()</a>。</li>
+</ul>
+<blockquote>
+<p>在第一个示例中，<code>%s</code>将替换为<code>img/avatar.png</code>，生成<code>&lt;img src =&quot;img/avatar.png&quot; align =&quot;left&quot;&gt;</code>作为结果。</p>
+<p>在第二个示例中，<code>data-main=&quot;%s&quot;</code>和<code>src =&quot;%s&quot;</code>将相应地替换为data-main.js和require-src.js，产生<code>&lt;script data-main =&quot;data-main.js&quot; src =&quot;require-src.js&quot;&gt; &lt;/ script&gt;</code>作为结果</p>
+</blockquote>
+<h6 id="extended-replacements-">Extended replacements: - 扩展替换：</h6>
+<pre><code class="lang-javascript">// 基于正在处理的文件进行替换
+htmlreplace({
+  js: {
+    src: null,
+    tpl: &#39;&lt;script src=&quot;%f&quot;.js&gt;&lt;/script&gt;&#39;
+  }
+})
+// 扩展更换结合标准更换
+htmlreplace({
+  js: {
+    src: &#39;dir&#39;,
+    tpl: &#39;&lt;script src=&quot;%s/%f&quot;.js&quot;&gt;&lt;/script&gt;&#39;
+  }
+})
+</code></pre>
+<ul>
+<li><strong>src</strong> - <code>null | String | Array | stream.Readable</code> 与上述示例相同，但如果模板中没有标准替换，则为null。</li>
+<li><strong>tpl</strong> - <code>String</code> 模板字符串。 扩展替换不使用util.format（），并在标准替换之前执行。</li>
+</ul>
+<blockquote>
+<p>在第一个示例中，src为null，因为没有标准替换。 <code>%f</code>替换为当前正在处理的文件的名称（无扩展名）。 如果正在处理的文件是<code>xyzzy.html</code>，结果是<code>&lt;script src =&quot;xyzzy.js&quot;&gt; &lt;/ script&gt;</code>。</p>
+<p>在第二个示例中，<code>src</code>已设置为字符串<code>dir</code>。 首先处理扩展替换，将<code>%f</code>替换为<code>xyzzy</code>，然后<code>%s</code>将替换为<code>dir</code>，导致<code>&lt;script src=&quot;dir/xyzzy.js&quot;&gt;&lt;/script&gt;</code>。</p>
+</blockquote>
+<p>有效的扩展替换是：</p>
+<ul>
+<li><strong>%f</strong> - 这将被替换为文件名，没有扩展名。</li>
+<li><strong>%e</strong> - 这将被包括<code>.</code>字符的扩展名替换。</li>
+</ul>
+<h6 id="-">流替换</h6>
+<p>每个地方都可以给出一个字符串替换，a stream of vinyl is also accepted。 每个文件的内容将被视为UTF-8文本，并用于替换。 如果流产生多个文件，则行为与给定数组时的行为相同。</p>
+<pre><code class="lang-javascript">// Replacement is a stream
+htmlreplace({
+  cssInline: {
+    src: gulp.src(&#39;style/main.scss&#39;).pipe(sass()),
+    tpl: &#39;&lt;style&gt;%s&lt;/style&gt;&#39;
+  }
+})
+</code></pre>
+<h4 id="options">options</h4>
+<p>Type: <code>object</code></p>
+<p>所有默认为 false</p>
+<ul>
+<li>{Boolean} <strong>keepUnassigned</strong> - 是否使用未使用的名称保留块或删除它们 </li>
+<li>{Boolean} <strong>keepBlockTags</strong> - 是否保留<code>&lt;!-- build --&gt;</code> 和 <code>&lt;!-- endbuild --&gt;</code>注释或删除它们</li>
+<li>{Boolean} <strong>resolvePaths</strong> - 尝试解析相对路径。 例如，如果您的<code>cwd</code>是<code>/</code>，您的html文件是<code>/page/index.html</code>，并将替换设置为<code>lib/file.js</code>，该html中的结果路径将是<code>../lib/file.js</code>  </li>
+</ul>
+<h6 id="options-example-">Options example:</h6>
+<pre><code class="lang-javascript">htmlreplace({
+  js: {
+    src: null,
+    tpl: &#39;&lt;script src=&quot;%f&quot;.js&gt;&lt;/script&gt;&#39;
+  }
+}, {
+  keepUnassigned: false,
+  keepBlockTags: false,
+  resolvePaths: false
+})
+</code></pre>
+<h2 id="example">Example</h2>
+<p>index.html:</p>
+<pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+
+    &lt;!-- build:css --&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;css/normalize.css&quot;&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;css/main.css&quot;&gt;
+    &lt;!-- endbuild --&gt;
+
+    &lt;/head&gt;
+    &lt;body&gt;
+
+    &lt;!-- build:js --&gt;
+    &lt;script src=&quot;js/player.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;js/monster.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;js/world.js&quot;&gt;&lt;/script&gt;
+    &lt;!-- endbuild --&gt;
+</code></pre>
+<p>gulpfile.js:</p>
+<pre><code class="lang-javascript">var gulp = require(&#39;gulp&#39;);
+var htmlreplace = require(&#39;gulp-html-replace&#39;);
+
+gulp.task(&#39;default&#39;, function() {
+  gulp.src(&#39;index.html&#39;)
+    .pipe(htmlreplace({
+        &#39;css&#39;: &#39;styles.min.css&#39;,
+        &#39;js&#39;: &#39;js/bundle.min.js&#39;
+    }))
+    .pipe(gulp.dest(&#39;build/&#39;));
+});
+</code></pre>
+<p>Result:</p>
+<pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;styles.min.css&quot;&gt;
+
+    &lt;/head&gt;
+    &lt;body&gt;
+
+    &lt;script src=&quot;js/bundle.min.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<h2 id="upgrade">Upgrade</h2>
+<h3 id="from-0-x-to-1-x">From 0.x to 1.x</h3>
+<blockquote>
+<p>此版本引入了流媒体支持，较少混淆的API，新选项keepUnused和全代码检修。</p>
+<ul>
+<li>如果你使用单个任务，像这样：<code>htmlreplace(&#39;js&#39;, &#39;script.js&#39;)</code> 只是更改为<code>htmlreplace({js: &#39;script.js&#39;})</code> </li>
+<li>如果你使用单一任务模板：<code>htmlreplace(&#39;js&#39;, &#39;script.js&#39;, &#39;&lt;script=&quot;%s&quot;&gt;&#39;)</code>将其更改为<code>htmlreplace({js: {src: &#39;script.js&#39;, tpl: &#39;&lt;script=&quot;%s&quot;&gt;&#39;})</code>    </li>
+<li>文件重命名为src，请参见上一个示例。 如果需要，重命名。</li>
+</ul>
+</blockquote>
+<h3 id="from-1-1-x-to-1-2-x">From 1.1.x to 1.2.x</h3>
+<blockquote>
+<p>此版本切换到指定选项的新方式，这种方式更加面向未来。 在它是<code>htmlreplace(tasks, keepUnassigned = false)</code>之前，现在它的<code>htmlreplace(tasks, {keepUnassigned: false})</code>。 不需要任何操作，旧的语法仍然可以工作，但是建议切换到新的语法。</p>
+</blockquote>
+
+    </div>
+    <!-- <script type="text/javascript" src="./test1.js"></script> -->
+</body>
+</html>
